@@ -1,0 +1,28 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            # touch test.txt
+            sudo rm -rf selfhosted-agent
+            git clone https://${{ secrets.PAT }}@github.com/AhmedRohan98/selfhosted-agent.git
+            cd selfhosted-agent
+            git checkout test
+            npm install
+            npm run build
+            pm2 restart 1
